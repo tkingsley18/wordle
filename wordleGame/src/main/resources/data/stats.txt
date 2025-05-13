@@ -1,14 +1,7 @@
-Successful guesses on 1 guess attempt(s): 
-12
-Successful guesses on 2 guess attempt(s): 
-4
-Successful guesses on 3 guess attempt(s): 
-6
-Successful guesses on 4 guess attempt(s): 
-1
-Successful guesses on 5 guess attempt(s): 
-1
-Successful guesses on 6 guess attempt(s): 
-0
-Total games played: 
-24
+Successful guesses on 1 guess attempt(s): 0
+Successful guesses on 2 guess attempt(s): 0
+Successful guesses on 3 guess attempt(s): 0
+Successful guesses on 4 guess attempt(s): 0
+Successful guesses on 5 guess attempt(s): 0
+Successful guesses on 6 guess attempt(s): 0
+Total games played: 0

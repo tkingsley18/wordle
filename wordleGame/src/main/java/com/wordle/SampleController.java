@@ -18,6 +18,7 @@ import javafx.geometry.Insets;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import java.nio.file.Files;
 
 public class SampleController {
     @FXML private Label boxLabel1, boxLabel2, boxLabel3, boxLabel4, boxLabel5, boxLabel6, boxLabel7, boxLabel8, boxLabel9, boxLabel10;
@@ -37,7 +38,7 @@ public class SampleController {
 	generateWord gameWord;
 	String gameString;
 	
-    private static final String USER_STATS_PATH = System.getProperty("user.home") + "/wordle_stats.txt";
+    private static final String USER_STATS_PATH = "src/main/resources/data/stats.txt";
     private static final String DEFAULT_STATS_RESOURCE = "/data/stats.txt";
 	
     @FXML
@@ -125,72 +126,42 @@ public class SampleController {
     	arrayCount = 0;
     }
     
-    private void handleStats(int numberOfGuesses) 
-    {
+    private void handleStats(int numberOfGuesses) {
         System.out.println("Handling stats for guess count: " + numberOfGuesses);
         System.out.flush();
-        int statArr[] = new int[7]; 
-        Scanner infile = null;
-        String inputString;
         File userStatsFile = new File(USER_STATS_PATH);
         System.out.println("Stats file path: " + USER_STATS_PATH);
         System.out.println("Stats file exists: " + userStatsFile.exists());
         System.out.flush();
         try {
-            if (userStatsFile.exists()) {
-                System.out.println("Reading stats from: " + USER_STATS_PATH);
-                infile = new Scanner(userStatsFile);
-            } else {
-                System.out.println("Reading default stats from resource");
-                InputStream in = getClass().getResourceAsStream(DEFAULT_STATS_RESOURCE);
-                if (in == null) throw new FileNotFoundException("Default stats resource not found");
-                infile = new Scanner(in);
+            List<String> stats = Files.readAllLines(userStatsFile.toPath());
+            int[] statsArray = new int[7]; // 6 for guesses, 1 for total games
+            int index = 0;
+            for (String line : stats) {
+                // Extract the number after the colon
+                String[] parts = line.split(":");
+                if (parts.length == 2) {
+                    String numPart = parts[1].trim();
+                    // Extract only the number
+                    numPart = numPart.replaceAll("[^0-9]", "");
+                    if (!numPart.isEmpty()) {
+                        statsArray[index++] = Integer.parseInt(numPart);
+                        if (index >= 7) break;
+                    }
+                }
             }
-            inputString = infile.nextLine();
-            statArr[0] = Integer.parseInt(infile.nextLine());
-            statLabel1.setText(inputString + statArr[0]);
-            inputString = infile.nextLine();
-            statArr[1] = Integer.parseInt(infile.nextLine());
-            statLabel2.setText(inputString + statArr[1]);
-            inputString = infile.nextLine();
-            statArr[2] = Integer.parseInt(infile.nextLine());
-            statLabel3.setText(inputString + statArr[2]);
-            inputString = infile.nextLine();
-            statArr[3] = Integer.parseInt(infile.nextLine());
-            statLabel4.setText(inputString + statArr[3]);
-            inputString = infile.nextLine();
-            statArr[4] = Integer.parseInt(infile.nextLine());
-            statLabel5.setText(inputString + statArr[4]);
-            inputString = infile.nextLine();
-            statArr[5] = Integer.parseInt(infile.nextLine());
-            statLabel6.setText(inputString + statArr[5]);
-            inputString = infile.nextLine();
-            statArr[6] = Integer.parseInt(infile.nextLine()); // total games played
-            statLabel7.setText(inputString + statArr[6]);
-            infile.close();
-        } catch (Exception e) {
-            System.out.println("Error reading stats: " + e.getMessage());
+            statsArray[numberOfGuesses - 1]++;
+            statsArray[6]++; // Increment total games played
+            try (PrintWriter writer = new PrintWriter(new FileWriter(userStatsFile))) {
+                for (int i = 0; i < 6; i++) {
+                    writer.println("Successful guesses on " + (i + 1) + " guess attempt(s): " + statsArray[i]);
+                }
+                writer.println("Total games played: " + statsArray[6]);
+            }
+            statBoard(statsArray);
+        } catch (IOException e) {
             e.printStackTrace();
-            return;
         }
-        // Write updated stats to user home
-        PrintWriter outfile = null;
-        try {
-            outfile = new PrintWriter(USER_STATS_PATH);
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found");
-            e.printStackTrace(); 
-            System.exit(0); 
-        }
-        statArr[6]++;
-        statArr[numberOfGuesses - 1]++; // update correct statistic
-        for (int i = 0; i < 6; i++) 
-        {
-            outfile.println("Successful guesses on " + (i+1)  + " guess attempt(s): \n" + statArr[i]);
-        }
-        outfile.println("Total games played: \n" + statArr[6]);
-        outfile.close();
-        statBoard();
     }
     
     @FXML
@@ -281,7 +252,7 @@ public class SampleController {
     	infile.close();
     }
     
-    private void statBoard() 
+    private void statBoard(int[] statsArray) 
     {
         System.out.println("Showing stat board");
         hideLabels();
@@ -297,6 +268,14 @@ public class SampleController {
         // Debug visibility
         System.out.println("Stat box visible: " + statBox.isVisible());
         System.out.println("Stat box layout bounds: " + statBox.getLayoutBounds());
+        
+        statLabel1.setText("Successful guesses on 1 guess attempt(s): " + statsArray[0]);
+        statLabel2.setText("Successful guesses on 2 guess attempt(s): " + statsArray[1]);
+        statLabel3.setText("Successful guesses on 3 guess attempt(s): " + statsArray[2]);
+        statLabel4.setText("Successful guesses on 4 guess attempt(s): " + statsArray[3]);
+        statLabel5.setText("Successful guesses on 5 guess attempt(s): " + statsArray[4]);
+        statLabel6.setText("Successful guesses on 6 guess attempt(s): " + statsArray[5]);
+        statLabel7.setText("Total games played: " + statsArray[6]);
     }
     
     private void hideLabels() 
