@@ -40,6 +40,7 @@ public class SampleController {
 	
     private static final String USER_STATS_PATH = "src/main/resources/data/stats.txt";
     private static final String DEFAULT_STATS_RESOURCE = "/data/stats.txt";
+    private static final String LOAD_GAME_PATH = "src/main/resources/data/loadgame.txt";
 	
     @FXML
     public void initialize() 
@@ -175,12 +176,12 @@ public class SampleController {
     }
     
     @FXML
-    private void saveButtonPressed() // export all data to txt file, still need to make the actual buttons in FXML
+    private void saveButtonPressed() // export all data to txt file
     {
     	PrintWriter outfile = null;
     	try
     	{
-    		outfile = new PrintWriter("./src/wordleApplication/loadgame.txt");
+    		outfile = new PrintWriter(LOAD_GAME_PATH);
     	}
     	catch (FileNotFoundException e)
     	{
@@ -212,7 +213,7 @@ public class SampleController {
     	String inputString;
     	try
     	{
-    		infile = new Scanner(new FileReader("./src/wordleApplication/loadgame.txt"));
+    		infile = new Scanner(new FileReader(LOAD_GAME_PATH));
     	}
     	catch (FileNotFoundException e)
     	{
